@@ -7,7 +7,7 @@ COLOR_CLICK    = (40,  90,  140)   # más oscuro al presionar
 COLOR_TEXTO    = (255, 255, 255)
 COLOR_BORDE    = (200, 200, 200)
 
-FUENTE_TAMAÑO  = 26
+FUENTE_TAMAÑO  = 20
 
 
 class Button:
@@ -40,7 +40,7 @@ class Button:
         self.radio        = radio_borde
 
         self._presionado  = False         # estado interno
-        self._fuente      = None          # se inicializa al primer dibujo
+        self._fuente      = pygame.font.SysFont(["segoeuisymbol", "arial"], FUENTE_TAMAÑO)          
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
