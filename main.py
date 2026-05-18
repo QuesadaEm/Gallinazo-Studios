@@ -1,4 +1,3 @@
-
 import emoji
 
 """
@@ -34,6 +33,23 @@ COLOR_GO_BORDE   = (100, 100, 130)
 
 # ── Configuración del juego ───────────────────────────────────────────────────
 config = {"matrix_size": 20}
+
+# ── Fondo del menú ────────────────────────────────────────────────────────────
+def _cargar_fondo_menu() -> pygame.Surface | None:
+    """Busca FondoMenu.png/jpg en IMG/ y lo devuelve escalado al menú."""
+    import os
+    for ext in ("png", "jpg", "jpeg"):
+        ruta = os.path.join("IMG", f"FondoMenu.{ext}")
+        if os.path.isfile(ruta):
+            try:
+                img = pygame.image.load(ruta).convert()
+                img = pygame.transform.scale(img, (ANCHO_MENU, ALTO_MENU))
+                print(f"  ✔ fondo menú     : {ruta}")
+                return img
+            except pygame.error as e:
+                print(f"  ✘ error fondo menú: {e}")
+    print("  · sin imagen     : IMG/FondoMenu.[png|jpg]  → usando color")
+    return None
 
 # ── Estados ───────────────────────────────────────────────────────────────────
 ESTADO_MENU     = "menu"
@@ -214,6 +230,9 @@ def main() -> None:
     pantalla = pygame.display.set_mode((ANCHO_MENU, ALTO_MENU))
     reloj    = pygame.time.Clock()
 
+    # Cargar fondo del menú (después de pygame.init)
+    fondo_menu: pygame.Surface | None = _cargar_fondo_menu()
+
     # ── Botones del menú ──────────────────────────────────────────────────────
     cx = ANCHO_MENU // 2 - 100
     btn_jugar    = Button(cx, 250, 200, 55, "Jugar")
@@ -317,9 +336,11 @@ def main() -> None:
                     estado = ESTADO_MENU
 
         # ── Dibujo ────────────────────────────────────────────────────────────
-        pantalla.fill(GRIS_OSCURO)
-
         if estado == ESTADO_MENU:
+            if fondo_menu:
+                pantalla.blit(fondo_menu, (0, 0))
+            else:
+                pantalla.fill(GRIS_OSCURO)
             btn_jugar.dibujar(pantalla)
             btn_opciones.dibujar(pantalla)
             btn_salir.dibujar(pantalla)
@@ -329,9 +350,11 @@ def main() -> None:
             game_screen.dibujar()
 
         elif estado == ESTADO_GAMEOVER and go_screen:
+            pantalla.fill(GRIS_OSCURO)
             go_screen.dibujar()
 
         elif estado == ESTADO_CONFIG and cfg_screen:
+            pantalla.fill(GRIS_OSCURO)
             cfg_screen.dibujar()
 
         pygame.display.flip()

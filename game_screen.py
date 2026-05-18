@@ -119,6 +119,22 @@ def _cargar_imagenes_jugador() -> dict[str, pygame.Surface | None]:
     return imgs
 
 
+def _cargar_fondo_juego(ancho: int, alto: int) -> pygame.Surface | None:
+    """Busca FondoJuego.png/jpg en IMG/ y lo devuelve escalado al tamaño de ventana."""
+    ruta = _buscar_imagen("FondoJuego")
+    if ruta:
+        try:
+            img = pygame.image.load(ruta).convert()
+            img = pygame.transform.scale(img, (ancho, alto))
+            print(f"  ✔ fondo juego    : {ruta}")
+            return img
+        except pygame.error as e:
+            print(f"  ✘ error fondo juego: {e}  → usando color")
+    else:
+        print(f"  · sin imagen     : {RUTA}/FondoJuego.[png|jpg]  → usando color")
+    return None
+
+
 class GameScreen:
     """
     Renderiza la matriz con margen gris, panel de info y botón 'Menú'.
@@ -161,6 +177,10 @@ class GameScreen:
         print("GameScreen: buscando imágenes en IMG/...")
         self._images = _cargar_imagenes()
         self._images_jugador = _cargar_imagenes_jugador()
+
+        ancho_ventana = superficie.get_width()
+        alto_ventana  = superficie.get_height()
+        self._fondo_juego = _cargar_fondo_juego(ancho_ventana, alto_ventana)
 
         self._btn_menu = Button(
             12, 10, 110, 38, "⏸  Menú",

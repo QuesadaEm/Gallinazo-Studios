@@ -1,11 +1,11 @@
 import pygame
 
 # ── Paleta por defecto (puedes sobreescribir al instanciar) ───────────────────
-COLOR_NORMAL   = (70,  130, 180)   # azul acero
-COLOR_HOVER    = (100, 160, 210)   # más claro al pasar el mouse
-COLOR_CLICK    = (40,  90,  140)   # más oscuro al presionar
-COLOR_TEXTO    = (255, 255, 255)
-COLOR_BORDE    = (200, 200, 200)
+COLOR_NORMAL   = (56, 59, 30,)   
+COLOR_HOVER    = (26, 28, 14) 
+COLOR_CLICK    = (60,  81,  32)  
+COLOR_TEXTO    = (174, 158, 133)
+COLOR_BORDE    = (174, 158, 133)
 
 FUENTE_TAMAÑO  = 20
 
