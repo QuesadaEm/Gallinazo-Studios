@@ -41,12 +41,13 @@ class Player:
 
     def _find_spawn(self) -> tuple[int, int]:
         """
-        Primera celda libre empezando en size//2, subiendo si es necesario.
+        Primera celda libre en la fila inferior. Si la fila inferior
+        está completamente bloqueada, sube fila por fila hasta encontrar
+        una celda libre, tal como pide la especificación.
         """
-        size      = self._matrix.size
-        start_row = max(0, size // 2)
+        size = self._matrix.size
 
-        for row in range(start_row, -1, -1):
+        for row in range(size - 1, -1, -1):
             for col in range(size):
                 if self._matrix.grid[row][col] == Matrix.FREE:
                     return row, col

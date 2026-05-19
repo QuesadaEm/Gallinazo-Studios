@@ -1,5 +1,3 @@
-import emoji
-
 """
 main.py — Punto de entrada y controlador de estados del juego.
 
@@ -90,11 +88,11 @@ class GameOverScreen:
         alto  = superficie.get_height()
 
         cx = ancho // 2
-        self._btn_guardar = Button(cx - 170, alto // 2 + 120, 150, 46, "Guardar",
+        self._btn_guardar = Button(cx - 170, alto - 100, 150, 46, "Guardar",
                                    color_normal=(50, 120, 50),
                                    color_hover =(70, 160, 70),
                                    color_click =(30,  80, 30))
-        self._btn_menu    = Button(cx +  20, alto // 2 + 120, 150, 46, "Menú",
+        self._btn_menu    = Button(cx +  20, alto - 100, 150, 46, "Menú",
                                    color_normal=(80,  80,  95),
                                    color_hover =(110, 110, 130),
                                    color_click =(50,  50,  65))
@@ -162,8 +160,8 @@ class GameOverScreen:
             s = self._fuente_input.render(display, True, COLOR_GO_NOMBRE)
             self.superficie.blit(s, s.get_rect(center=box_rect.center))
 
-        # Top 3 puntajes
-        self._dibujar_top3(cx, alto // 2 + 60)
+        # Top 20 puntajes
+        self._dibujar_top20(cx, alto // 2 + 60)
 
         self._btn_guardar.dibujar(self.superficie)
         self._btn_menu.dibujar(self.superficie)
@@ -179,17 +177,36 @@ class GameOverScreen:
         self._pos_ranking = pos if entro else 0
         return "guardado"
 
-    def _dibujar_top3(self, cx: int, y: int) -> None:
-        top = self.game.get_top_scores()[:3]
+    def _dibujar_top20(self, cx: int, y: int) -> None:
+        """
+        Muestra el Top 20 histórico de puntajes en dos columnas
+        para aprovechar el espacio de la ventana.
+        """
+        top = self.game.get_top_scores()[:20]
         if not top:
             return
-        s = self._fuente_texto.render("── Top 3 ──", True, (150, 150, 170))
+
+        fuente_header = pygame.font.SysFont(None, 28)
+        fuente_entry  = pygame.font.SysFont(None, 22)
+
+        # Título
+        s = fuente_header.render("── Top 20 ──", True, (150, 150, 170))
         self.superficie.blit(s, s.get_rect(centerx=cx, y=y))
+        y += 30
+
+        # Dos columnas: izq (1–10), der (11–20)
+        col_izq = cx - 180
+        col_der = cx + 10
+        medallas = {0: (255, 215, 0), 1: (192, 192, 192), 2: (205, 127, 50)}
+
         for i, (nombre, pts) in enumerate(top):
-            color = [(255, 215, 0), (192, 192, 192), (205, 127, 50)][i]
-            txt = f"#{i+1}  {nombre}  —  {pts}"
-            s = self._fuente_texto.render(txt, True, color)
-            self.superficie.blit(s, s.get_rect(centerx=cx, y=y + 28 + i * 26))
+            color = medallas.get(i, (180, 180, 180))
+            txt = f"#{i+1:02d}  {nombre[:12]:<12}  {pts}"
+            s = fuente_entry.render(txt, True, color)
+            if i < 10:
+                self.superficie.blit(s, (col_izq, y + i * 20))
+            else:
+                self.superficie.blit(s, (col_der, y + (i - 10) * 20))
 
     def _init_fuentes(self) -> None:
         if self._fuente_titulo is None:

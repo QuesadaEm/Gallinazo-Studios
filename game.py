@@ -35,8 +35,11 @@ class Game:
     DIFFICULTY_STEP:  float = 0.1
     DIFFICULTY_EVERY: float = 15.0
 
-    # Cada cuántos ticks de scroll se spawnea un reward
-    REWARD_INTERVAL: int = 3
+    # Cada cuántos segundos se spawnea un reward (especificación: 5 s)
+    REWARD_SPAWN_EVERY: float = 5.0
+
+    # Cuántos segundos dura un reward en el mapa (especificación: 10 s)
+    REWARD_TTL: float = 10.0
 
     # Probabilidades relativas de cada reward (pesos)
     REWARD_WEIGHTS = {
@@ -60,12 +63,11 @@ class Game:
         """
         self.size = size
 
-        # 1. Construir la matriz completa de forma síncrona
+        # La matriz arranca vacía (todo libre). El hilo secundario irá
+        # agregando filas con obstáculos desde arriba hacia abajo.
         self.matrix = Matrix(size)
-        while not self.matrix.is_complete:
-            self.matrix.add_row()
 
-        # 2. Crear el jugador DESPUÉS de que la matriz tenga contenido
+        # Crear el jugador en la fila inferior (que aún está libre)
         self.player = Player(self.matrix)
 
         # 3. Gestor de puntajes
@@ -78,6 +80,10 @@ class Game:
         self._stop_event    = threading.Event()
         self._scroll_thread: threading.Thread = None
         self._tick_count:   int   = 0
+
+        # Rewards activos: lista de (fila, col, tiempo_spawn)
+        self._active_rewards: list[tuple[int, int, float]] = []
+        self._elapsed_since_reward: float = 0.0
 
         self.on_game_over = None
         self.on_tick      = None
@@ -155,22 +161,27 @@ class Game:
 
             self._tick_count += 1
 
-            # 1. Scroll: nueva fila entra por arriba, todo baja.
-            #    El jugador NO está en la matriz, solo sus coordenadas,
-            #    así que no hay nada que limpiar antes.
+            # 1. Agregar nueva fila desde arriba (build o scroll)
             self.matrix.add_row()
 
-            # 2. Empujar coordenadas del jugador una fila hacia abajo
-            player_alive = self.player.push_down()
-            if not player_alive:
-                self._trigger_game_over()
-                break
+            # 2. Solo empujar al jugador una vez que la matriz esté completa
+            #    (fase de scroll). Durante la construcción el jugador está libre.
+            if self.matrix.is_complete:
+                self._shift_rewards_down()
+                player_alive = self.player.push_down()
+                if not player_alive:
+                    self._trigger_game_over()
+                    break
 
-            # 3. Spawnear rewards periódicamente
-            if self._tick_count % self.REWARD_INTERVAL == 0:
-                self._spawn_reward()
+            # 3. Gestión de rewards: solo durante la fase de scroll
+            if self.matrix.is_complete:
+                self._elapsed_since_reward += self.scroll_interval
+                if self._elapsed_since_reward >= self.REWARD_SPAWN_EVERY:
+                    self._spawn_reward()
+                    self._elapsed_since_reward = 0.0
+                self._expire_rewards()
 
-            # 4. Dificultad progresiva
+            # 5. Dificultad progresiva
             elapsed_since_difficulty += time.time() - start_tick
             if elapsed_since_difficulty >= self.DIFFICULTY_EVERY:
                 self._increase_difficulty()
@@ -182,6 +193,7 @@ class Game:
     def _spawn_reward(self) -> None:
         """
         Coloca un reward aleatorio en una celda libre de la matriz.
+        Registra la posición y el tiempo de spawn para controlar su expiración.
         Usa los pesos definidos en REWARD_WEIGHTS.
         No spawnea si no hay celdas libres.
         """
@@ -189,20 +201,57 @@ class Game:
         if not free_cells:
             return
 
-        # Excluir la celda del jugador por si acaso
+        # Excluir la celda del jugador
         player_pos = (self.player.row, self.player.col)
         free_cells = [c for c in free_cells if c != player_pos]
         if not free_cells:
             return
 
         # Elegir tipo de reward según pesos
-        tipos   = list(self.REWARD_WEIGHTS.keys())
-        pesos   = list(self.REWARD_WEIGHTS.values())
-        tipo    = random.choices(tipos, weights=pesos, k=1)[0]
+        tipos  = list(self.REWARD_WEIGHTS.keys())
+        pesos  = list(self.REWARD_WEIGHTS.values())
+        tipo   = random.choices(tipos, weights=pesos, k=1)[0]
 
-        # Elegir celda aleatoria
+        # Elegir celda aleatoria y colocar el reward
         row, col = random.choice(free_cells)
         self.matrix.set_cell(row, col, tipo)
+
+        # Registrar para el timer de expiración
+        self._active_rewards.append((row, col, time.time()))
+
+    def _expire_rewards(self) -> None:
+        """
+        Elimina de la matriz los rewards que lleven más de REWARD_TTL (10 s)
+        en el mapa sin ser recolectados.
+        """
+        now = time.time()
+        vigentes = []
+
+        for row, col, spawn_time in self._active_rewards:
+            if now - spawn_time >= self.REWARD_TTL:
+                # Expirado: borrar de la matriz si sigue siendo un reward
+                if self.matrix._in_bounds(row, col):
+                    cell = self.matrix.get_cell(row, col)
+                    if cell in self.REWARD_WEIGHTS:
+                        self.matrix.set_cell(row, col, Matrix.FREE)
+            else:
+                vigentes.append((row, col, spawn_time))
+
+        self._active_rewards = vigentes
+
+    def _shift_rewards_down(self) -> None:
+        """
+        Ajusta las coordenadas de fila de los rewards activos tras cada scroll.
+        Cada scroll desplaza todo una fila hacia abajo, así que fila += 1.
+        Los rewards que salen por el borde inferior se descartan.
+        """
+        nuevos = []
+        for row, col, spawn_time in self._active_rewards:
+            new_row = row + 1
+            if new_row < self.matrix.size:
+                nuevos.append((new_row, col, spawn_time))
+            # Si sale del mapa simplemente se descarta (ya no existe en la matriz)
+        self._active_rewards = nuevos
 
     def _interruptible_sleep(self, duration: float) -> None:
         steps         = max(1, int(duration / 0.05))
