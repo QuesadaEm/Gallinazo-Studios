@@ -1,0 +1,12 @@
+[project]
+name = "asadas-sistema"
+version = "0.1.0"
+description = "Motor de persistencia e indexación de ASADAS (Desarrollador A)"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.31.0"]
+
+# Hace que la raíz del proyecto esté en el sys.path al correr pytest,
+# de modo que los import "src.xxx" se resuelvan sin configuración extra.
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

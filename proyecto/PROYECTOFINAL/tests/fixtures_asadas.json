@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "success": true,
+    "status": 200,
+    "message": "Se ha completado la consulta de los datos.",
+    "source": "ARESEP",
+    "date": "2019-11-12T14:15:53.000"
+  },
+  "value": [
+    {"id_Asada": 50, "id_Objecto": 1001, "provincia": "Alajuela", "canton": "San Carlos", "distrito": "Quesada", "operador": "ASADA Quesada", "correo": "quesada@asada.cr", "telefono": "2460-1000", "fax": "2460-1001", "tipoSistema": "Acueducto", "codigoDTA": "21001", "coordenadaX": "404500.5", "coordenadaY": "1140200.0"},
+    {"id_Asada": 30, "id_Objecto": 1002, "provincia": "Alajuela", "canton": "San Carlos", "distrito": "Florencia", "operador": "ASADA Florencia", "correo": "florencia@asada.cr", "telefono": "2475-1000", "fax": "", "tipoSistema": "Acueducto", "codigoDTA": "21002", "coordenadaX": "402100.0", "coordenadaY": "1138900.0"},
+    {"id_Asada": 80, "id_Objecto": 1003, "provincia": "Cartago", "canton": "Cartago", "distrito": "Oriental", "operador": "ASADA Oriental", "correo": "oriental@asada.cr", "telefono": "2550-1000", "fax": "2550-1001", "tipoSistema": "Acueducto y Alcantarillado", "codigoDTA": "30101", "coordenadaX": "517300.0", "coordenadaY": "1090400.0"},
+    {"id_Asada": 10, "id_Objecto": 1004, "provincia": "San José", "canton": "Central", "distrito": "Carmen", "operador": "ASADA Carmen", "correo": "carmen@asada.cr", "telefono": "2221-1000", "fax": "", "tipoSistema": "Acueducto", "codigoDTA": "10101", "coordenadaX": "490000.0", "coordenadaY": "1100000.0"},
+    {"id_Asada": 70, "id_Objecto": 1005, "provincia": "Cartago", "canton": "Cartago", "distrito": "Occidental", "operador": "ASADA Occidental con un nombre de operador deliberadamente largo para verificar el truncado seguro del campo de texto en la serializacion binaria de longitud fija", "correo": "occidental@asada.cr", "telefono": "2551-1000", "fax": "2551-1001", "tipoSistema": "Acueducto", "codigoDTA": "30102", "coordenadaX": "516800.0", "coordenadaY": "1090100.0"},
+    {"id_Asada": 40, "id_Objecto": 1006, "provincia": "Alajuela", "canton": "San Carlos", "distrito": "Aguas Zarcas", "operador": "ASADA Aguas Zarcas", "correo": "aguaszarcas@asada.cr", "telefono": "2474-1000", "fax": "", "tipoSistema": "Acueducto", "codigoDTA": "21008", "coordenadaX": "410200.0", "coordenadaY": "1145300.0"},
+    {"id_Asada": 60, "id_Objecto": 1007, "provincia": "San José", "canton": "Central", "distrito": "Merced", "operador": "ASADA Merced", "correo": "merced@asada.cr", "telefono": "2222-1000", "fax": "", "tipoSistema": "Acueducto", "codigoDTA": "10102", "coordenadaX": "489500.0", "coordenadaY": "1100300.0"},
+    {"id_Asada": 20, "id_Objecto": 1008, "provincia": "Heredia", "canton": "Central", "distrito": "Heredia", "operador": "ASADA Heredia", "correo": "heredia@asada.cr", "telefono": "2260-1000", "fax": "", "tipoSistema": "Acueducto", "codigoDTA": "40101", "coordenadaX": "486000.0", "coordenadaY": "1103000.0"}
+  ]
+}

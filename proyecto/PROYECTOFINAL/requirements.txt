@@ -1,0 +1,6 @@
+# Dependencias del proyecto (Dev A + Dev B)
+requests>=2.31.0     # Dev A: consumo del endpoint REST de ARESEP
+pyproj>=3.6          # Dev B: conversión CRTM05 (EPSG:5367) -> WGS84 (EPSG:4326)
+folium>=0.15         # Dev B: generación del mapa HTML sobre OpenStreetMap
+# stdlib (no se instala): json, struct, datetime, os, io, hashlib, threading,
+# dataclasses, socket, tkinter, webbrowser
